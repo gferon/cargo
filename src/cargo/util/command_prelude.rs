@@ -258,6 +258,14 @@ pub trait CommandExt: Sized {
         ._arg(unsupported_short_arg)
     }
 
+    fn arg_host_target_triple(self, host_target: &'static str) -> Self {
+        self._arg(
+            opt("host-target", host_target)
+                .value_name("HOST-TARGET")
+                .help_heading(heading::COMPILATION_OPTIONS),
+        )
+    }
+
     fn arg_target_dir(self) -> Self {
         self._arg(
             opt("target-dir", "Directory for all generated artifacts")

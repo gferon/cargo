@@ -244,7 +244,7 @@ fn check_resolver_change(ws: &Workspace<'_>, opts: &FixOptions) -> CargoResult<(
     assert_eq!(ws.resolve_behavior(), ResolveBehavior::V1);
     let specs = opts.compile_opts.spec.to_package_id_specs(ws)?;
     let mut target_data =
-        RustcTargetData::new(ws, &opts.compile_opts.build_config.requested_kinds)?;
+        RustcTargetData::new(ws, &opts.compile_opts.build_config.requested_kinds, None)?;
     let mut resolve_differences = |has_dev_units| -> CargoResult<(WorkspaceResolve<'_>, DiffMap)> {
         let max_rust_version = ws.rust_version();
 

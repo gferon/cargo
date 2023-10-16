@@ -95,6 +95,9 @@ pub fn cli() -> Command {
             "Filter dependencies matching the given target-triple (default host platform). \
             Pass `all` to include all targets.",
         )
+        .arg_host_target_triple(
+            "Filter build-dependencies matching the given target-triple (default host platform).",
+        )
         .arg_manifest_path()
         .after_help(color_print::cstr!(
             "Run `<cyan,bold>cargo help tree</>` for more detailed information.\n"
@@ -141,6 +144,8 @@ pub fn exec(config: &mut Config, args: &ArgMatches) -> CliResult {
         args.targets()?
     };
     let target = tree::Target::from_cli(targets);
+
+    let host_target = args._value_of("host-target").map(ToString::to_string);
 
     let (edge_kinds, no_proc_macro) = parse_edge_kinds(config, args)?;
     let graph_features = edge_kinds.contains(&EdgeKind::Feature);
@@ -190,6 +195,7 @@ subtree of the package given to -p.\n\
         cli_features: args.cli_features()?,
         packages,
         target,
+        host_target,
         edge_kinds,
         invert,
         pkgs_to_prune,

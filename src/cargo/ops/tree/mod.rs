@@ -1,7 +1,7 @@
 //! Implementation of `cargo tree`.
 
 use self::format::Pattern;
-use crate::core::compiler::{CompileKind, RustcTargetData};
+use crate::core::compiler::{CompileKind, CompileTarget, RustcTargetData};
 use crate::core::dependency::DepKind;
 use crate::core::resolver::{features::CliFeatures, ForceAllTargets, HasDevUnits};
 use crate::core::{Package, PackageId, PackageIdSpec, Workspace};
@@ -24,6 +24,8 @@ pub struct TreeOptions {
     pub packages: Packages,
     /// The platform to filter for.
     pub target: Target,
+    /// The host platform to filter for.
+    pub host_target: Option<String>,
     /// The dependency kinds to display.
     pub edge_kinds: HashSet<EdgeKind>,
     pub invert: Vec<String>,
@@ -132,10 +134,19 @@ pub fn build_and_print(ws: &Workspace<'_>, opts: &TreeOptions) -> CargoResult<()
         Target::All | Target::Host => Vec::new(),
         Target::Specific(t) => t.clone(),
     };
+
     // TODO: Target::All is broken with -Zfeatures=itarget. To handle that properly,
     // `FeatureResolver` will need to be taught what "all" means.
     let requested_kinds = CompileKind::from_requested_targets(ws.config(), &requested_targets)?;
-    let mut target_data = RustcTargetData::new(ws, &requested_kinds)?;
+    let mut target_data = RustcTargetData::new(
+        ws,
+        &requested_kinds,
+        if let Some(host_target) = &opts.host_target {
+            Some(CompileTarget::new(host_target)?)
+        } else {
+            None
+        },
+    )?;
     let specs = opts.packages.to_package_id_specs(ws)?;
     let has_dev = if opts
         .edge_kinds

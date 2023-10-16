@@ -126,7 +126,7 @@ fn build_resolve_graph(
     // How should this work?
     let requested_kinds =
         CompileKind::from_requested_targets(ws.config(), &metadata_opts.filter_platforms)?;
-    let mut target_data = RustcTargetData::new(ws, &requested_kinds)?;
+    let mut target_data = RustcTargetData::new(ws, &requested_kinds, None)?;
     // Resolve entire workspace.
     let specs = Packages::All.to_package_id_specs(ws)?;
     let force_all = if metadata_opts.filter_platforms.is_empty() {

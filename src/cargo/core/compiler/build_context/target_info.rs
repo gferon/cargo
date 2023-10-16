@@ -880,13 +880,25 @@ impl<'cfg> RustcTargetData<'cfg> {
     pub fn new(
         ws: &Workspace<'cfg>,
         requested_kinds: &[CompileKind],
+        host_target: Option<CompileTarget>,
     ) -> CargoResult<RustcTargetData<'cfg>> {
         let config = ws.config();
         let rustc = config.load_global_rustc(Some(ws))?;
         let mut target_config = HashMap::new();
         let mut target_info = HashMap::new();
         let target_applies_to_host = config.target_applies_to_host()?;
-        let host_info = TargetInfo::new(config, requested_kinds, &rustc, CompileKind::Host)?;
+
+        let host_info = if let Some(host_target) = host_target {
+            TargetInfo::new(
+                config,
+                requested_kinds,
+                &rustc,
+                CompileKind::Target(host_target),
+            )?
+        } else {
+            TargetInfo::new(config, requested_kinds, &rustc, CompileKind::Host)?
+        };
+
         let host_config = if target_applies_to_host {
             config.target_cfg_triple(&rustc.host)?
         } else {

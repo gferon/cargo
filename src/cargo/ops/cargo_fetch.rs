@@ -31,7 +31,7 @@ pub fn fetch<'a>(
         &options.targets,
         CompileMode::Build,
     )?;
-    let mut data = RustcTargetData::new(ws, &build_config.requested_kinds)?;
+    let mut data = RustcTargetData::new(ws, &build_config.requested_kinds, None)?;
     let mut fetched_packages = HashSet::new();
     let mut deps_to_fetch = ws.members().map(|p| p.package_id()).collect::<Vec<_>>();
     let mut to_download = Vec::new();
